@@ -102,3 +102,18 @@ describe('most blogs', () => {
     assert.deepStrictEqual(result, { author: blogs[4].author, blogs: 3 })
   })
 })
+
+describe('most likes', () => {
+  test('of empty list is undefined', () => {
+    const result = listHelper.mostLikes([])
+    assert.deepStrictEqual(result, undefined)
+  })
+  test('when list has only one blog, returns that author and likes', () => {
+    const result = listHelper.mostLikes([blogs[1]])
+    assert.deepStrictEqual(result, { author: blogs[1].author, likes: blogs[1].likes })
+  })
+  test('of a bigger list is calculated right', () => {
+    const result = listHelper.mostLikes(blogs)
+    assert.deepStrictEqual(result, { author: blogs[1].author, likes: 17 })
+  })
+})
