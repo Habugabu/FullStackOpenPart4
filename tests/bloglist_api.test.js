@@ -1,50 +1,14 @@
-const { test, after, beforeEach } = require('node:test')
+const { test, after, beforeEach, describe } = require('node:test')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const assert = require('node:assert')
 const app = require('../app')
 const Blog = require('../models/blog')
+const helper = require('./test_helper')
 
 const api = supertest(app)
 
-const initialBlogs = [
-    {
-      title: "React patterns",
-      author: "Michael Chan",
-      url: "https://reactpatterns.com/",
-      likes: 7,
-    },
-    {
-      title: "Go To Statement Considered Harmful",
-      author: "Edsger W. Dijkstra",
-      url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
-      likes: 5,
-    },
-    {
-      title: "Canonical string reduction",
-      author: "Edsger W. Dijkstra",
-      url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
-      likes: 12,
-    },
-    {
-      title: "First class tests",
-      author: "Robert C. Martin",
-      url: "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll",
-      likes: 10,
-    },
-    {
-      title: "TDD harms architecture",
-      author: "Robert C. Martin",
-      url: "http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html",
-      likes: 0,
-    },
-    {
-      title: "Type wars",
-      author: "Robert C. Martin",
-      url: "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
-      likes: 2,
-    }  
-  ]
+const initialBlogs = helper.initialBlogs
 
 beforeEach(async () => {
     await Blog.deleteMany({})
@@ -116,8 +80,33 @@ test('posting a blog without a title or url will result in a bad request respons
         author: "Tester",
         likes: 1
     }
-    const response1 = await api.post('/api/blogs').send(blog1)
-    const response2 = await api.post('/api/blogs').send(blog2)
+    await api
+        .post('/api/blogs')
+        .send(blog1)
+        .expect(400)
+    await api
+        .post('/api/blogs')
+        .send(blog2)
+        .expect(400)
+})
+
+test('delete request removes that blog from the db', async () => {
+    const response = await api.get('/api/blogs')
+    await api.del(`/api/blogs/${response.body[0].id}`)
+    const responseAfter = await api.get('/api/blogs')
+
+    assert.strictEqual(responseAfter.body.length, response.body.length - 1)
+
+    assert.deepStrictEqual(responseAfter.body, response.body.filter(blog => blog.id !== response.body[0].id))
+})
+
+test('put request correctly updates blog', async () => {
+    const response = await api.get('/api/blogs')
+    const updatedBlog1 = {likes: response.body[1].likes + 1, ...response.body[1]}
+    await api.put(`/api/blogs/${response.body[1].id}`).send(updatedBlog1)
+    const responseAfter = await api.get('/api/blogs')
+
+    assert.deepStrictEqual(responseAfter.body.filter(b => b.id === updatedBlog1.id), [updatedBlog1])
 })
 
 after(async () => {
