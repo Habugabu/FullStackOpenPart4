@@ -105,6 +105,21 @@ test('posting a blog without the likes property sets it to 0 by default', async 
     assert.strictEqual(response.body.likes, 0)
 })
 
+test('posting a blog without a title or url will result in a bad request response', async () => {
+    const blog1 = {
+        author: "Tester",
+        url: "localhost",
+        likes: 1
+    }
+    const blog2 = {
+        title: "Test",
+        author: "Tester",
+        likes: 1
+    }
+    const response1 = await api.post('/api/blogs').send(blog1)
+    const response2 = await api.post('/api/blogs').send(blog2)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
