@@ -94,6 +94,17 @@ test('post correctly adds blog to db', async () => {
     assert(getResponse.body.map(b => b.title).includes(blog.title))
 })
 
+test('posting a blog without the likes property sets it to 0 by default', async () => {
+    const blog = {
+        title: "Test",
+        author: "Tester",
+        url: "localhost",
+    }
+    const response = await api.post('/api/blogs').send(blog)
+
+    assert.strictEqual(response.body.likes, 0)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
