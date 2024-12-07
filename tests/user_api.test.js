@@ -12,7 +12,7 @@ describe('creating a new user...', () => {
     test('adds the user to db', async () => {
         const usersBefore = await helper.usersInDb()
         const newUser = {
-            username: "Test",
+            username: "Testing",
             password: "Tester"
         }
         await api.post('/api/users').send(newUser)

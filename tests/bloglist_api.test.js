@@ -3,18 +3,31 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const assert = require('node:assert')
 const app = require('../app')
+const User = require('../models/user')
 const Blog = require('../models/blog')
 const helper = require('./test_helper')
 
-const api = supertest(app)
+const api = supertest.agent(app)
 
 const initialBlogs = helper.initialBlogs
 
+const mainUser = {
+    username: "admin",
+    password: "admin1"
+}
+
+const creds = {id: "", auth: ""}
+
 beforeEach(async () => {
+    await User.deleteMany({})
+    const userResponse = await api.post('/api/users').send(mainUser)
+    creds.id = userResponse.body.id
+    const loginResponse = await api.post('/api/login').send(mainUser)
+    creds.auth = `Bearer ${loginResponse.body.token}`
+    api.set('Authorization', creds.auth)
     await Blog.deleteMany({})
     for (let i = 0; i < initialBlogs.length; i++) {
-        let blogObject = new Blog(initialBlogs[i])
-        await blogObject.save()
+        await api.post('/api/blogs').send(initialBlogs[i])
     }
 })
 
@@ -53,7 +66,7 @@ describe('post request...', () => {
 
         const getResponse = await api.get('/api/blogs')
 
-        assert.deepStrictEqual(newBlog, blog)
+        assert.deepStrictEqual(newBlog, {user: creds.id, ...blog})
 
         assert.strictEqual(getResponse.body.length, initialBlogs.length + 1)
 
@@ -114,7 +127,7 @@ describe('delete request...', () => {
 describe('put request...', () => {
     test('returns appropriate status codes', async () => {
         const response = await api.get('/api/blogs')
-        await api //successful deletion
+        await api //successful update
             .put(`/api/blogs/${response.body[0].id}`)
             .send(response.body[0])
             .expect(201)

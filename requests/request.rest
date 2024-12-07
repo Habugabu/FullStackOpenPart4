@@ -4,7 +4,7 @@ GET http://localhost:3003/api/blogs
 
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhlbGxvIiwiaWQiOiI2NzU0MGZjNjY1OTBhNTFhZGUxNjg3NWIiLCJpYXQiOjE3MzM1NjIzMjMsImV4cCI6MTczMzU2NTkyM30.fqJOQujg09XHjcnRisdPrXnHqm3LuxB8qwxfW30lkDw
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhlbGxvIiwiaWQiOiI2NzU0MGZjNjY1OTBhNTFhZGUxNjg3NWIiLCJpYXQiOjE3MzM1Njg2NjIsImV4cCI6MTczMzU3MjI2Mn0.j-i5etnAxJk3Ilv8PGE4K-IlxFDkuy_ZUe2T49exLM4
 
 {
     "title": "boom",

@@ -1,7 +1,5 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
-const User = require('../models/user')
-const jwt = require('jsonwebtoken')
 
 
 blogsRouter.get('/', async (request, response) => {
@@ -11,7 +9,10 @@ blogsRouter.get('/', async (request, response) => {
 
 blogsRouter.post('/', async (request, response) => {
   const user = request.user
-  const blog = new Blog({user: user.id, ...request.body})
+  if (!user) {
+    return response.status(401).json({ error: 'must be logged in' })
+  }
+  const blog = new Blog({user: user._id, ...request.body})
 
   const savedBlog = await blog.save()
   user.blogs = user.blogs.concat(savedBlog._id)
@@ -22,8 +23,11 @@ blogsRouter.post('/', async (request, response) => {
 
 blogsRouter.delete('/:id', async (request, response) => {
   const user = request.user
+  if (!user) {
+    return response.status(401).json({ error: 'must be logged in' })
+  }
   const blog = await Blog.findById(request.params.id)
-  if (blog.user.toString() !== user.id.toString()) {
+  if (blog.user.toString() !== user._id.toString()) {
     return response.status(401).json({ error: 'blog not owned by this user' })
   }
   await Blog.findByIdAndDelete(request.params.id)
