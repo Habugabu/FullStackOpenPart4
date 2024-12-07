@@ -79,6 +79,13 @@ test('correct amount of blogs returned', async () => {
     assert.strictEqual(response.body.length, initialBlogs.length)
 })
 
+test('identifier field is named id', async () => {
+    const response = await api.get('/api/blogs')
+    const blogsWithIdField = response.body.filter(blog => blog.id !== undefined)
+
+    assert.strictEqual(blogsWithIdField.length, initialBlogs.length)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
