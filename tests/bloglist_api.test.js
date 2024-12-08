@@ -102,6 +102,19 @@ describe('post request...', () => {
             .send(blog2)
             .expect(400)
     })
+    test ('fails without valid token/authorization', async () => {
+        const blog = {
+            title: "Test",
+            author: "Tester",
+            url: "localhost",
+            likes: 99
+        }
+        await api
+            .post('/api/blogs')
+            .set('authorization', '')
+            .send(blog)
+            .expect(401)
+    })
 })
 
 describe('delete request...', () => {
@@ -132,7 +145,7 @@ describe('put request...', () => {
             .send(response.body[0])
             .expect(201)
         await api //blog doesn't exist
-            .put(`/api/blogs/${response.body[0].id}a`)
+            .put(`/api/blogs/foo${response.body[0].id}`)
             .send(response.body[0])
             .expect(400)
     })

@@ -27,7 +27,7 @@ blogsRouter.delete('/:id', async (request, response) => {
     return response.status(401).json({ error: 'must be logged in' })
   }
   const blog = await Blog.findById(request.params.id)
-  if (blog.user.toString() !== user._id.toString()) {
+  if (blog && blog.user.toString() !== user._id.toString()) {
     return response.status(401).json({ error: 'blog not owned by this user' })
   }
   await Blog.findByIdAndDelete(request.params.id)
@@ -35,7 +35,9 @@ blogsRouter.delete('/:id', async (request, response) => {
 })
 
 blogsRouter.put('/:id', async (request, response) => {
-  const blog = await Blog.findByIdAndUpdate(request.params.id, request.body, { new: true, runValidators: true, context: 'query' })
+  const { title, author, url, likes } = request.body
+  const blog = await Blog.findByIdAndUpdate(request.params.id, 
+    { title, author, url, likes }, { new: true, runValidators: true, context: 'query' })
   response.status(201).json(blog)
 })
 
